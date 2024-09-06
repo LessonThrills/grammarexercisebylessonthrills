@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Exercise by LessonThrills</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        h1 {
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            padding: 20px;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+        }
+        .start-btn, .nav-button, .submit-btn {
+            cursor: pointer;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            font-size: 16px;
+            border: none;
+            margin-top: 10px;
+        }
+        .start-btn:hover, .nav-button:hover, .submit-btn:hover {
+            background: linear-gradient(to right, #0052d4, #4364f7);
+        }
+        .question-box, .answer-box, .explanation-box, .result-box {
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .answer-box {
+            cursor: pointer;
+            background: linear-gradient(to right, #56ccf2, #2f80ed);
+            transition: background 0.3s ease;
+            padding: 10px;
+        }
+        .answer-box:hover {
+            background: linear-gradient(to right, #45aaf2, #1e90ff);
+        }
+        .answer-box.correct {
+            background: green !important;
+        }
+        .answer-box.wrong {
+            background: red !important;
+        }
+        .hidden {
+            display: none;
+        }
+        .timer {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .nav-button {
+            cursor: pointer;
+            padding: 10px;
+            font-size: 20px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            border: none;
+        }
+        .nav-button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .nav-button {
+                font-size: 16px;
+            }
+            .start-btn, .submit-btn {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Grammar Exercise by LessonThrills</h1>
+
+    <button class="start-btn" id="start-btn">Start</button>
+
+    <div id="name-popup" class="hidden">
+        <div class="question-box">
+            <label for="name">Enter your name:</label>
+            <input type="text" id="name-input" placeholder="Your name">
+            <button class="nav-button" onclick="startQuiz()">Submit</button>
+        </div>
+    </div>
+
+    <div id="countdown" class="hidden timer"></div>
+
+    <div class="timer hidden" id="quiz-timer">Time: <span id="time-elapsed">00:00</span></div>
+
+    <div class="container hidden" id="quiz-container">
+        <div class="question-box" id="question-box">
+            <!-- The question will be loaded here -->
+        </div>
+
+        <div id="options-container">
+            <!-- The options will be loaded here -->
+        </div>
+
+        <div class="explanation-box" id="explanation">
+            <!-- Explanation will be shown here -->
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-button" id="prev-btn" onclick="prevQuestion()" disabled>&#9664; Previous</button>
+            <button class="nav-button" id="next-btn" onclick="nextQuestion()">Next &#9654;</button>
+        </div>
+
+        <button class="submit-btn hidden" id="submit-btn" onclick="submitQuiz()">Submit</button>
+    </div>
+
+    <div class="result-box hidden" id="result-box">
+        <!-- The result will be displayed here -->
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Which of the following sentences is grammatically correct?",
+                options: [
+                    { text: "A) He don't know the answer.", correct: false },
+                    { text: "B) He doesn't knows the answer.", correct: false },
+                    { text: "C) He doesn't know the answer.", correct: true },
+                    { text: "D) He isn't knowing the answer.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'He doesn't know the answer.' The subject 'He' takes the singular verb 'doesn't.'"
+            },
+            {
+                question: "Choose the correct sentence:",
+                options: [
+                    { text: "A) Neither of them are correct.", correct: false },
+                    { text: "B) Neither of them is correct.", correct: true },
+                    { text: "C) Neither of them is knowing.", correct: false },
+                    { text: "D) Neither of them were correct.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'Neither of them is correct.' In this case, 'Neither' takes a singular verb."
+            },
+            {
+                question: "Which option uses the correct verb form?",
+                options: [
+                    { text: "A) She has went to the store.", correct: false },
+                    { text: "B) She has gone to the store.", correct: true },
+                    { text: "C) She have gone to the store.", correct: false },
+                    { text: "D) She gone to the store.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'She has gone to the store.' The verb 'has gone' is the correct past participle form."
+            },
+            {
+                question: "Which of the following sentences is correct?",
+                options: [
+                    { text: "A) John and Mary was there.", correct: false },
+                    { text: "B) John and Mary were there.", correct: true },
+                    { text: "C) John and Mary is there.", correct: false },
+                    { text: "D) John and Mary are there.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'John and Mary were there.' The subject is plural, so the plural verb 'were' is needed."
+            },
+            {
+                question: "Select the correct sentence:",
+                options: [
+                    { text: "A) The team has won their match.", correct: false },
+                    { text: "B) The team have won its match.", correct: false },
+                    { text: "C) The team has won its match.", correct: true },
+                    { text: "D) The team have won their match.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'The team has won its match.' 'Team' is a collective noun and takes a singular verb."
+            },
+            {
+                question: "Choose the correct sentence:",
+                options: [
+                    { text: "A) Each of the boys are responsible.", correct: false },
+                    { text: "B) Each of the boys is responsible.", correct: true },
+                    { text: "C) Each of the boys were responsible.", correct: false },
+                    { text: "D) Each of the boys have been responsible.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'Each of the boys is responsible.' 'Each' is singular and requires a singular verb."
+            },
+            {
+                question: "Which of the following sentences is correct?",
+                options: [
+                    { text: "A) He don't know the way.", correct: false },
+                    { text: "B) He doesn't know the way.", correct: true },
+                    { text: "C) He doesn't knows the way.", correct: false },
+                    { text: "D) He do not know the way.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'He doesn't know the way.' The correct form is 'doesn't know,' not 'don't' or 'knows.'"
+            },
+            {
+                question: "Choose the correct form of the verb:",
+                options: [
+                    { text: "A) I have saw the movie.", correct: false },
+                    { text: "B) I have seen the movie.", correct: true },
+                    { text: "C) I had saw the movie.", correct: false },
+                    { text: "D) I has seen the movie.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'I have seen the movie.' 'Seen' is the past participle, used with 'have.'"
+            },
+            {
+                question: "Identify the correct sentence:",
+                options: [
+                    { text: "A) He don't knows the truth.", correct: false },
+                    { text: "B) He doesn't know the truth.", correct: true },
+                    { text: "C) He doesn't knew the truth.", correct: false },
+                    { text: "D) He do not know the truth.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'He doesn't know the truth.' 'Doesn't' is paired with 'know,' not 'knows.'"
+            },
+            {
+                question: "Which is the correct usage?",
+                options: [
+                    { text: "A) I has finished my homework.", correct: false },
+                    { text: "B) I have finish my homework.", correct: false },
+                    { text: "C) I have finished my homework.", correct: true },
+                    { text: "D) I had finish my homework.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'I have finished my homework.' The past participle 'finished' is used with 'have.'"
+            },
+            {
+                question: "Choose the correct sentence:",
+                options: [
+                    { text: "A) She don't know the answer.", correct: false },
+                    { text: "B) She doesn't knows the answer.", correct: false },
+                    { text: "C) She doesn't know the answer.", correct: true },
+                    { text: "D) She isn't knowing the answer.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'She doesn't know the answer.' 'Doesn't' is paired with 'know,' not 'knows.'"
+            },
+            {
+                question: "Choose the correct sentence:",
+                options: [
+                    { text: "A) Everyone are going to the party.", correct: false },
+                    { text: "B) Everyone is going to the party.", correct: true },
+                    { text: "C) Everyone have gone to the party.", correct: false },
+                    { text: "D) Everyone were gone to the party.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'Everyone is going to the party.' 'Everyone' is treated as singular."
+            },
+            {
+                question: "Identify the grammatically correct sentence:",
+                options: [
+                    { text: "A) She has seen the movie last week.", correct: false },
+                    { text: "B) She saw the movie last week.", correct: true },
+                    { text: "C) She has saw the movie last week.", correct: false },
+                    { text: "D) She have seen the movie last week.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'She saw the movie last week.' The simple past 'saw' is correct for past events."
+            },
+            {
+                question: "Choose the correct sentence:",
+                options: [
+                    { text: "A) The news are surprising.", correct: false },
+                    { text: "B) The news is surprising.", correct: true },
+                    { text: "C) The news were surprising.", correct: false },
+                    { text: "D) The news have been surprising.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'The news is surprising.' 'News' is a singular noun, so 'is' is used."
+            },
+            {
+                question: "Identify the correct sentence:",
+                options: [
+                    { text: "A) Neither of the options are correct.", correct: false },
+                    { text: "B) Neither of the options is correct.", correct: true },
+                    { text: "C) Neither of the options were correct.", correct: false },
+                    { text: "D) Neither of the options have been correct.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'Neither of the options is correct.' 'Neither' is singular, so 'is' is used."
+            },
+            {
+                question: "Choose the correct form of the verb:",
+                options: [
+                    { text: "A) I has finished my work.", correct: false },
+                    { text: "B) I have finished my work.", correct: true },
+                    { text: "C) I had finish my work.", correct: false },
+                    { text: "D) I have finishing my work.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'I have finished my work.' The past participle 'finished' is correct with 'have.'"
+            },
+            {
+                question: "Choose the correct sentence:",
+                options: [
+                    { text: "A) Neither of the books are interesting.", correct: false },
+                    { text: "B) Neither of the books is interesting.", correct: true },
+                    { text: "C) Neither of the books were interesting.", correct: false },
+                    { text: "D) Neither of the books have been interesting.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'Neither of the books is interesting.' 'Neither' takes a singular verb 'is.'"
+            },
+            {
+                question: "Which of the following sentences is correct?",
+                options: [
+                    { text: "A) The committee is meeting tomorrow.", correct: true },
+                    { text: "B) The committee are meeting tomorrow.", correct: false },
+                    { text: "C) The committee has meeting tomorrow.", correct: false },
+                    { text: "D) The committee have meeting tomorrow.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'The committee is meeting tomorrow.' 'Committee' is singular, so 'is' is used."
+            },
+            {
+                question: "Choose the correct sentence:",
+                options: [
+                    { text: "A) The police is investigating the case.", correct: false },
+                    { text: "B) The police are investigating the case.", correct: true },
+                    { text: "C) The police has investigating the case.", correct: false },
+                    { text: "D) The police were investigate the case.", correct: false }
+                ],
+                explanation: "The correct sentence is: 'The police are investigating the case.' 'Police' is plural and takes 'are.'"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let answerState = {}; // Track user's answer for each question
+        let userName = '';
+        let totalTime = 0;
+        let quizTimerInterval;
+        let startTime;
+
+        // Show start button initially
+        document.getElementById('start-btn').addEventListener('click', () => {
+            document.getElementById('start-btn').classList.add('hidden');
+            document.getElementById('name-popup').classList.remove('hidden');
+        });
+
+        function startQuiz() {
+            const nameInput = document.getElementById('name-input').value;
+            if (nameInput.trim()) {
+                userName = nameInput;
+                document.getElementById('name-popup').classList.add('hidden');
+                showCountdown();
+            }
+        }
+
+        function showCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            let countdown = 3;
+            countdownElement.classList.remove('hidden');
+            countdownElement.innerText = countdown;
+
+            const interval = setInterval(() => {
+                countdown -= 1;
+                countdownElement.innerText = countdown;
+                if (countdown === 0) {
+                    clearInterval(interval);
+                    countdownElement.classList.add('hidden');
+                    startTimer();
+                    loadQuestion();
+                    document.getElementById('quiz-container').classList.remove('hidden');
+                    document.getElementById('quiz-timer').classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function startTimer() {
+            startTime = new Date().getTime();
+            quizTimerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                totalTime = now - startTime;
+                document.getElementById('time-elapsed').innerText = formatTime(totalTime);
+            }, 1000);
+        }
+
+        function formatTime(ms) {
+            const seconds = Math.floor(ms / 1000) % 60;
+            const minutes = Math.floor(ms / (1000 * 60)) % 60;
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function loadQuestion() {
+            const questionData = questions[currentQuestionIndex];
+            document.getElementById('question-box').innerText = questionData.question;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            questionData.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('answer-box');
+                optionDiv.innerText = option.text;
+                optionDiv.onclick = () => checkAnswer(optionDiv, index);
+
+                // Check if the option has already been answered
+                if (answerState[currentQuestionIndex] !== undefined) {
+                    const isCorrect = questionData.options[answerState[currentQuestionIndex]].correct;
+                    if (index === answerState[currentQuestionIndex]) {
+                        optionDiv.classList.add(isCorrect ? 'correct' : 'wrong');
+                    }
+                }
+
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('submit-btn').classList.remove('hidden');
+            updateNavButtons();
+        }
+
+        function checkAnswer(selectedOption, optionIndex) {
+            const questionData = questions[currentQuestionIndex];
+            const isCorrect = questionData.options[optionIndex].correct;
+
+            answerState[currentQuestionIndex] = optionIndex;
+
+            document.querySelectorAll('.answer-box').forEach(box => {
+                box.classList.remove('correct', 'wrong');
+            });
+
+            if (isCorrect) {
+                selectedOption.classList.add('correct');
+            } else {
+                selectedOption.classList.add('wrong');
+            }
+
+            const explanationBox = document.getElementById('explanation');
+            explanationBox.style.display = 'block';
+            explanationBox.innerHTML = isCorrect ? `<strong>You are correct!</strong> ${questionData.explanation}`
+                                                 : `<strong>You are wrong, try again!</strong> ${questionData.explanation}`;
+        }
+
+        function updateNavButtons() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.disabled = currentQuestionIndex === questions.length - 1;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            clearInterval(quizTimerInterval);
+            const resultBox = document.getElementById('result-box');
+            resultBox.classList.remove('hidden');
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-timer').classList.add('hidden');
+            document.getElementById('submit-btn').classList.add('hidden');
+
+            const correctAnswers = Object.keys(answerState).filter(qIndex => {
+                return questions[qIndex].options[answerState[qIndex]].correct;
+            }).length;
+
+            resultBox.innerHTML = `
+                <h2>Hi, ${userName}!</h2>
+                <p>Your Score: ${correctAnswers}/${questions.length}</p>
+                <p>Time Taken: ${formatTime(totalTime)}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
